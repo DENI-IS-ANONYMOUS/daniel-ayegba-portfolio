@@ -1,7 +1,14 @@
 {
-  "name":"daniel-ayegba-portfolio-v2",
-  "version":"2.0.0",
-  "private":true,
-  "scripts":{"start":"node server.js"},
-  "dependencies":{"dotenv":"^16.4.7","express":"^5.1.0","nodemailer":"^7.0.5"}
+  "name": "daniel-ayegba-portfolio-v2",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "nodemailer": "^7.0.5",
+    "resend": "^6.19.0"
+  }
 }

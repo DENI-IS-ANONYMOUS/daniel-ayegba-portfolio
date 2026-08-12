@@ -1,9 +1,10 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const app = express();
+
 const PORT = Number(process.env.PORT || 8080);
 const PUBLIC = path.join(__dirname, "public");
 const REVIEWS_FILE = path.join(__dirname, "reviews.json");
@@ -11,7 +12,9 @@ const REVIEWS_FILE = path.join(__dirname, "reviews.json");
 function readReviews() {
   try {
     if (!fs.existsSync(REVIEWS_FILE)) return [];
-    return JSON.parse(fs.readFileSync(REVIEWS_FILE, "utf8"));
+    return JSON.parse(
+      fs.readFileSync(REVIEWS_FILE, "utf8")
+    );
   } catch {
     return [];
   }
@@ -20,30 +23,25 @@ function readReviews() {
 function writeReviews(items) {
   fs.writeFileSync(
     REVIEWS_FILE,
-    JSON.stringify(items.slice(-50), null, 2)
+    JSON.stringify(items.slice(-50), null, 2),
+    "utf8"
   );
 }
 
-app.disable("x-powered-by");
+const clean = (value, maxLength) =>
+  String(value ?? "")
+    .replace(/[<>]/g, "")
+    .trim()
+    .slice(0, maxLength);
 
 app.use(express.json({ limit: "50kb" }));
 app.use(express.static(PUBLIC));
-
-function clean(value, max) {
-  return String(value ?? "")
-    .replace(/[<>]/g, "")
-    .trim()
-    .slice(0, max);
-}
 
 /* HEALTH CHECK */
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
-    emailConfigured: Boolean(
-      process.env.EMAIL_USER &&
-      process.env.EMAIL_APP_PASSWORD
-    )
+    emailConfigured: Boolean(process.env.RESEND_API_KEY)
   });
 });
 
@@ -83,7 +81,6 @@ app.post("/api/reviews", async (req, res) => {
     });
   }
 
-  /* SAVE REVIEW FIRST */
   const review = {
     name,
     email,
@@ -92,59 +89,56 @@ app.post("/api/reviews", async (req, res) => {
     date: new Date().toISOString()
   };
 
+  /* SAVE REVIEW FIRST */
   const reviews = readReviews();
   reviews.push(review);
   writeReviews(reviews);
 
-  /* EMAIL NOTIFICATION */
+  /* EMAIL NOTIFICATION USING RESEND */
   let emailSent = false;
 
-  if (process.env.EMAIL_USER && process.env.EMAIL_APP_PASSWORD) {
+  if (process.env.RESEND_API_KEY) {
     try {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_APP_PASSWORD
-        }
-      });
+      const resend = new Resend(process.env.RESEND_API_KEY);
 
-      await transporter.sendMail({
-        from: `"Daniel Ayegba Portfolio" <${process.env.EMAIL_USER}>`,
-        to: process.env.REVIEW_TO || "danieljoseph8449@gmail.com",
+      await resend.emails.send({
+        from: "Daniel Ayegba Portfolio <onboarding@resend.dev>",
+        to: [
+          process.env.REVIEW_TO || "danieljoseph8449@gmail.com"
+        ],
         replyTo: email,
-        subject: `Portfolio review — ${rating}/5 from ${name}`,
+        subject: `Portfolio review – ${rating}/5 from ${name}`,
         text:
-`Name: ${name}
-Email: ${email}
-Rating: ${rating}/5
-
-${message}`
+          `Name: ${name}\n` +
+          `Email: ${email}\n` +
+          `Rating: ${rating}/5\n\n` +
+          `${message}`
       });
 
       emailSent = true;
+      console.log("REVIEW EMAIL SENT SUCCESSFULLY");
     } catch (error) {
       console.error("EMAIL ERROR:", error.message);
     }
+  } else {
+    console.error("EMAIL ERROR: RESEND_API_KEY is not configured");
   }
 
   if (emailSent) {
     return res.json({
       ok: true,
-      emailSent: true,
       message: "Review sent successfully. It is now displayed below."
     });
   }
 
   return res.json({
     ok: true,
-    emailSent: false,
     message:
       "Review saved successfully. Email notification could not be delivered."
   });
 });
 
-/* FRONTEND FALLBACK */
+/* SERVE PORTFOLIO */
 app.use((req, res) => {
   res.sendFile(path.join(PUBLIC, "index.html"));
 });
