@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#060810"><title>Reviews | Daniel Ayegba</title><link rel="stylesheet" href="style.css"></head><body>
+<header class="header"><div class="container nav"><a class="logo" href="index.html"><span class="logoMark">DA</span><span>Daniel Ayegba</span></a><nav class="navLinks" id="navLinks">
+<a href="index.html">Home</a><a href="about.html">About</a><a href="skills.html">Skills</a><a href="projects.html">Projects</a><a class="active" href="reviews.html">Reviews</a><a href="contact.html">Contact</a></nav><div><button class="iconBtn" id="themeBtn">◐</button><button class="iconBtn menuBtn" id="menuBtn">☰</button></div></div></header>
+<main>
+<section class="pageHero"><div class="container reveal"><p class="kicker">REVIEWS</p><h1>Tell me what you think.</h1><p>Send feedback and, once delivered successfully, your review will appear in the public review wall below.</p></div></section>
+<section class="section"><div class="container grid" style="grid-template-columns:1.05fr .95fr">
+<div class="card reveal"><form class="form" id="reviewForm">
+<div class="field"><label>Your name</label><input name="name" required maxlength="80" placeholder="Your name"></div>
+<div class="field"><label>Your email</label><input name="email" type="email" required placeholder="you@example.com"></div>
+<div class="field"><label>Rating</label><div class="rating"><button type="button" class="star" data-value="1">★</button><button type="button" class="star" data-value="2">★</button><button type="button" class="star" data-value="3">★</button><button type="button" class="star" data-value="4">★</button><button type="button" class="star" data-value="5">★</button></div></div>
+<input id="ratingValue" type="hidden" name="rating" value="0">
+<div class="field"><label>Your review</label><textarea name="message" required maxlength="1200" placeholder="Write your feedback..."></textarea></div>
+<div class="notice" id="reviewNotice"></div><button class="btn primary" id="reviewBtn" type="submit">Send Review →</button>
+</form></div>
+<div class="card reveal"><div class="icon">⭐</div><h3>Feedback matters.</h3><p class="muted">Your review is emailed to Daniel and then added to this review wall after successful delivery.</p><div class="status" style="margin-top:20px"><span class="dot"></span> Review system ready</div></div>
+</div></section>
+<section class="section alt"><div class="container"><div class="sectionHead reveal"><div><p class="kicker">COMMUNITY FEEDBACK</p><h2>What visitors say.</h2></div><span class="status" id="reviewCount">Loading reviews…</span></div><div id="reviewList" class="reviewList"></div></div></section>
+</main>
+<footer class="footer"><div class="container footerRow"><span>© 2026 Daniel Ayegba</span><a href="mailto:danieljoseph8449@gmail.com">danieljoseph8449@gmail.com</a></div></footer>
+<button id="top">↑</button><script src="app.js"></script></body></html>
